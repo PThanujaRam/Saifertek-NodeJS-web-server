@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Server</title>
+</head>
+<body>
+    <h1>File Server</h1>
+    <form id="fileForm">
+        <input type="text" name="filename" placeholder="Enter filename"><br>
+        <textarea name="content" placeholder="Enter file content"></textarea><br>
+        <button type="submit">Upload File</button>
+    </form>
+    
+    <div id="fileList"></div>
+
+    <script>
+        document.getElementById('fileForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+        const formData = new FormData(this);
+        fetch('/createFile', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.text())
+        .then(message => {
+            alert(message);
+            this.reset();
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    });
+    
+
+        function fetchFileList() {
+            fetch('/getFiles')
+            .then(response => response.json())
+            .then(files => {
+                const fileList = document.getElementById('fileList');
+                fileList.innerHTML = ''; // Clear existing file list
+                files.forEach(file => {
+                    const link = document.createElement('a');
+                    link.href = `/getFile/${file}`;
+                    link.textContent = file;
+                    link.setAttribute('target', '_blank');
+                    fileList.appendChild(link);
+                    fileList.appendChild(document.createElement('br'));
+                });
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
+
+        // Fetch file list when the page loads
+        fetchFileList();
+    </script>
+</body>
+</html>
